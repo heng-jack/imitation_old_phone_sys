@@ -62,21 +62,78 @@ void Camera::take_picture() {
 void Camera::show_picture() {
 	cout << "将展示所有的图片,按esc键退出" << endl;
 	cout << "wasd键来控制" << endl;
+	cout << "退格键删除照片" << endl;
 	system("pause");
 	int existence_size = existence.size();
+	int realnum = existence_size;
+	int last_i = 0;
 	for (int i = 0; i < existence_size; ) {
+		//已删除就不再播放
+		bool is_del = false;
+		for (int j = 0; j < del.size(); j++) {
+			if (i == del[j]) is_del = true;
+		}
+		if (is_del) {
+			if (i < last_i) i -= 1;
+			else i += 1;
+			continue;
+		}
+		last_i = i;
 		string directory_name = PIC_FILE_NAME;
 		string window_name = to_string(i + 1);
-		imshow(window_name + '/' + to_string(existence_size), imread(directory_name + '\\' + existence[i]));
+		imshow("index:" + window_name + '/' + "real num:" + to_string(realnum), imread(directory_name + '\\' + existence[i]));
 		//根据按键实现图片轮播
-		if ((waitKey(0) == 'a' || waitKey(0) == 'w') && i > 0) i -= 1;
-		else if ((waitKey(0) == 's' || waitKey(0) == 'd') /*&& i < (existence_size - 1)*/) i += 1;
-		else if (waitKey(0) == 27) {				//esc键
+		int chr = waitKey(0);
+		if ((chr == 'a' || chr == 'w') && i > 0) i -= 1;
+		else if ((chr == 's' || chr == 'd') /*&& i < (existence_size - 1)*/) i += 1;
+		else if (chr == 27) {				//esc键
 			destroyAllWindows();
 			break;
 		}
+		//删除图片功能
+		//记录在existencez中的索引与del数组中，在此函数结束运行时实现删除
+		else if (chr == 8) {//退格键
+			del.push_back(i);
+			realnum--;
+			i += 1;
+		}
 		destroyAllWindows();
+		
 	}
 	cout << "播放结束" << endl;
 	system("pause");
+
+	//实现删除
+	bool is_suc_del = 0;//记录是否成功删除，成功就清空del
+	for (int i = 0; i < del.size(); i++) {
+		string directory_name = PIC_FILE_NAME;
+		// 调用 Windows API 删除文件
+		if (DeleteFileA((directory_name + "\\" + existence[del[i]]).c_str())/*c API 需要用c风格字符数组*/) {
+			//std::cout << "文件删除成功：" << directory_name + "\\" + existence[del[i]] << std::endl;
+			//同时在两数组中分别删除
+			is_suc_del = true;
+			for (int j = del[i] + 1; j < existence.size(); j++) {
+				existence[j - 1] = existence[j];
+			}
+			existence.pop_back();
+		}
+		else {
+			DWORD error = GetLastError();
+			std::cout << "文件删除失败，错误码：" << error << std::endl;
+
+			switch (error) {
+			case ERROR_FILE_NOT_FOUND:
+				std::cout << "错误原因：文件不存在。" << std::endl;
+				break;
+			case ERROR_ACCESS_DENIED:
+				std::cout << "错误原因：权限不足或文件被占用。" << std::endl;
+				break;
+			default:
+				std::cout << "其他错误。" << std::endl;
+				break;
+			}
+			system("pause");
+		}
+	}
+	if (is_suc_del) del.clear();
 }
