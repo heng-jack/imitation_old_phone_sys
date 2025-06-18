@@ -221,7 +221,7 @@ void file_check_make() {
 		DWORD error = GetLastError();
 		if (error == ERROR_ALREADY_EXISTS) {}
 		else if (error == ERROR_PATH_NOT_FOUND) {
-			std::cout << "g路径中某一级目录不存在。\n";
+			std::cout << "路径中某一级目录不存在。\n";
 			system("pause");
 		}
 		else {

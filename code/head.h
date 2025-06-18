@@ -145,9 +145,7 @@ public:
 	}
 };
 
-//int show_type_id = 1;
-//int Id::show_type_id = 1;
-//需要在主函数文件中赋初值？？？
+
 
 class Base_Show :  public Id {						
 protected:

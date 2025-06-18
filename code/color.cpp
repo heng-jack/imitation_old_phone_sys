@@ -29,6 +29,12 @@ void Console_Color::setting_console_color_id() {
 		system("pause");
 		return;
 	}
+	//判断颜色序号是否在选择范围内
+	else if (bid < 0 || bid > 0xF || tid < 0 || tid > 0xF) {
+		cout << "背景颜色或字体颜色不在范围内，将自动注销本次更改…………" << endl;
+		system("pause");
+		return;
+	}
 	//给出是否确认修改的提示
 
 	cout << "是否确定一下更改\n";
